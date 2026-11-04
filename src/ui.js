@@ -60,7 +60,7 @@ export function linkButtons(...extra) {
   const row = new ActionRowBuilder();
   if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Website").setURL(config.websiteUrl));
   if (config.downloadUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Download").setURL(config.downloadUrl));
-  if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Buy a key").setURL(`${config.websiteUrl}/#pricing`));
+  if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Buy a key").setURL(`${config.websiteUrl}/pricing`));
   row.addComponents(...extra);
   return row.components.length ? [row] : [];
 }
