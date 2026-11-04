@@ -1,3 +1,4 @@
+import { PermissionFlagsBits } from "discord.js";
 import { config } from "./config.js";
 import { rpc } from "./db.js";
 import { settings } from "./settings.js";
@@ -37,4 +38,25 @@ export async function syncBuyerRoles(client) {
     await new Promise((r) => setTimeout(r, 250));
   }
   return added;
+}
+
+/**
+ * Tells the database which linked accounts belong to staff, so the website's
+ * staff panel knows who may use it. Admins are the server owner and anyone
+ * with Administrator; staff have a /setup staff role. Entries expire after an
+ * hour, so this runs with the role sync.
+ */
+export async function syncStaff(client) {
+  const guild = await client.guilds.fetch(config.guildId).catch(() => null);
+  if (!guild) return null;
+  const staffRoles = settings().staffRoleIds;
+  const people = (await rpc("bot_role_list")) ?? [];
+  const members = [];
+  for (const p of people) {
+    const member = await guild.members.fetch(p.discord_id).catch(() => null);
+    if (!member) continue;
+    if (guild.ownerId === member.id || member.permissions.has(PermissionFlagsBits.Administrator)) members.push({ id: member.id, level: "admin" });
+    else if (staffRoles.some((r) => member.roles.cache.has(r))) members.push({ id: member.id, level: "staff" });
+  }
+  return rpc("bot_sync_staff", { p_members: members });
 }

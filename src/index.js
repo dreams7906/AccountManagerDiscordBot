@@ -3,7 +3,7 @@ import { isAdmin, isStaff } from "./access.js";
 import { byName } from "./commands/index.js";
 import { config } from "./config.js";
 import { UserError } from "./db.js";
-import { syncBuyerRoles } from "./roles.js";
+import { syncBuyerRoles, syncStaff } from "./roles.js";
 import { refreshSettings } from "./settings.js";
 import { failure, privately } from "./ui.js";
 
@@ -81,11 +81,13 @@ client.once(Events.ClientReady, async (ready) => {
     console.warn(`Couldn't load /setup settings: ${e?.message ?? e}`);
     return null;
   });
-  if (current && !current.buyerRoleId) console.warn("ℹNo buyer role yet. An admin can set one with /setup buyer-role.");
+  if (current && !current.buyerRoleId) console.warn("No buyer role yet. An admin can set one with /setup buyer-role.");
 
   const sync = async () => {
     try {
       await refreshSettings();
+      // The website's staff panel trusts this list, so it runs first.
+      await syncStaff(ready).catch((e) => console.warn(`Staff sync failed: ${e?.message ?? e}`));
       const added = await syncBuyerRoles(ready);
       if (added) console.log(`Gave the buyer role to ${added} member${added === 1 ? "" : "s"}.`);
     } catch (e) {
