@@ -1,0 +1,19 @@
+{
+  "name": "cam-discord-bot",
+  "private": true,
+  "type": "module",
+  "description": "Discord bot for Custom Account Manager: linking, HWID resets, keys and the buyer role.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "deploy": "node src/deploy-commands.js",
+    "check": "node src/check.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "discord.js": "^14.28.1",
+    "dotenv": "^16.6.1"
+  }
+}
