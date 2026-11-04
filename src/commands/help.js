@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { isStaff } from "../access.js";
+import { isAdmin, isStaff } from "../access.js";
 import { config } from "../config.js";
 import { base, linkButtons, privately } from "../ui.js";
 
@@ -7,6 +7,7 @@ const SECTIONS = [
   ["Account", "🎮 Your account"],
   ["Info", "ℹ️ Info"],
   ["Staff", "🛠️ Staff"],
+  ["Admin", "⚙️ Server admins"],
 ];
 
 export default {
@@ -22,8 +23,9 @@ export default {
     );
     for (const [category, title] of SECTIONS) {
       if (category === "Staff" && !staff) continue;
+      if (category === "Admin" && !isAdmin(interaction)) continue;
       const list = commands.filter((c) => c.category === category);
-      embed.addFields({ name: title, value: list.map((c) => `**/${c.data.name}** · ${c.data.description.replace(" (staff)", "")}`).join("\n") });
+      embed.addFields({ name: title, value: list.map((c) => `**/${c.data.name}** · ${c.data.description.replace(/ \((staff|admins only)\)/, "")}`).join("\n") });
     }
     await interaction.reply(privately({ embeds: [embed], components: linkButtons() }));
   },

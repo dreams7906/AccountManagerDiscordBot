@@ -11,6 +11,7 @@ import panel from "./panel.js";
 import pricing from "./pricing.js";
 import redeem from "./redeem.js";
 import resetpassword from "./resetpassword.js";
+import setup from "./setup.js";
 import stats from "./stats.js";
 import status from "./status.js";
 import unlink from "./unlink.js";
@@ -38,6 +39,7 @@ export const commands = [
   revokekey,
   stats,
   panel,
+  setup,
 ];
 
 export const byName = new Map(commands.map((c) => [c.data.name, c]));

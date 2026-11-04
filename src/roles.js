@@ -1,16 +1,18 @@
 import { config } from "./config.js";
 import { rpc } from "./db.js";
+import { settings } from "./settings.js";
 
 /**
  * Gives the buyer role to one person if they don't have it. The role is
  * never taken away, even when their time runs out. Returns true when added.
  */
 export async function giveBuyerRole(guild, discordId) {
-  if (!config.buyerRoleId || !guild) return false;
+  const role = settings().buyerRoleId;
+  if (!role || !guild) return false;
   try {
     const member = await guild.members.fetch(discordId);
-    if (member.roles.cache.has(config.buyerRoleId)) return false;
-    await member.roles.add(config.buyerRoleId, "Has a Custom Account Manager account with time");
+    if (member.roles.cache.has(role)) return false;
+    await member.roles.add(role, "Has a Custom Account Manager account with time");
     return true;
   } catch (e) {
     // Not in the server, or the bot's role sits below the buyer role.
@@ -24,7 +26,7 @@ export async function giveBuyerRole(guild, discordId) {
  * and gives them the role. Runs every few minutes.
  */
 export async function syncBuyerRoles(client) {
-  if (!config.buyerRoleId) return 0;
+  if (!settings().buyerRoleId) return 0;
   const guild = await client.guilds.fetch(config.guildId).catch(() => null);
   if (!guild) return 0;
   const people = (await rpc("bot_role_list")) ?? [];

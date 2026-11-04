@@ -16,7 +16,7 @@ for (const command of commands) {
     problems++;
   }
   const options = (json.options ?? []).map((o) => o.name).join(", ");
-  console.log(`✓ /${json.name}${command.staff ? " (staff)" : ""}${options ? `  [${options}]` : ""}`);
+  console.log(`✓ /${json.name}${command.admin ? " (admins)" : command.staff ? " (staff)" : ""}${options ? `  [${options}]` : ""}`);
 }
 console.log(problems ? `\n${problems} problem(s)` : `\nAll ${commands.length} commands are valid.`);
 process.exit(problems ? 1 : 0);

@@ -1,9 +1,10 @@
 import { ActivityType, Client, Events, GatewayIntentBits } from "discord.js";
-import { isStaff } from "./access.js";
+import { isAdmin, isStaff } from "./access.js";
 import { byName } from "./commands/index.js";
 import { config } from "./config.js";
 import { UserError } from "./db.js";
 import { syncBuyerRoles } from "./roles.js";
+import { refreshSettings } from "./settings.js";
 import { failure, privately } from "./ui.js";
 
 const ROLE_SYNC_EVERY = 10 * 60_000;
@@ -24,7 +25,14 @@ async function report(interaction, error) {
   }
 }
 
-const denied = (interaction) => interaction.reply(privately({ embeds: [failure("That's for staff only.")] }));
+const denied = (interaction, who = "staff") => interaction.reply(privately({ embeds: [failure(`That's for ${who} only.`)] }));
+
+/** Admin commands need Administrator; staff commands need a staff role too. */
+function allowed(command, interaction) {
+  if (command.admin) return isAdmin(interaction);
+  if (command.staff) return isStaff(interaction);
+  return true;
+}
 
 client.on(Events.InteractionCreate, async (interaction) => {
   // Only the configured server; never in DMs.
@@ -36,7 +44,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   try {
     if (interaction.isAutocomplete()) {
       const command = byName.get(interaction.commandName);
-      if (command?.autocomplete && (!command.staff || isStaff(interaction))) await command.autocomplete(interaction);
+      if (command?.autocomplete && allowed(command, interaction)) await command.autocomplete(interaction);
       else await interaction.respond([]);
       return;
     }
@@ -44,7 +52,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.isChatInputCommand()) {
       const command = byName.get(interaction.commandName);
       if (!command) return;
-      if (command.staff && !isStaff(interaction)) return denied(interaction);
+      if (!allowed(command, interaction)) return denied(interaction, command.admin ? "server admins" : "staff");
       return await command.execute(interaction);
     }
 
@@ -54,7 +62,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       const command = byName.get(name);
       const handler = (interaction.isButton() ? command?.buttons : command?.modals)?.[handlerName];
       if (!handler) return;
-      if (command.staff && !command.publicButtons && !isStaff(interaction)) return denied(interaction);
+      if (!command.publicButtons && !allowed(command, interaction)) return denied(interaction, command.admin ? "server admins" : "staff");
       return await handler(interaction);
     }
   } catch (error) {
@@ -69,10 +77,15 @@ client.once(Events.ClientReady, async (ready) => {
 
   const guild = await ready.guilds.fetch(config.guildId).catch(() => null);
   if (!guild) console.warn("⚠️ The bot isn't in the server set as DISCORD_GUILD_ID. Invite it with the link in the README.");
-  if (!config.buyerRoleId) console.warn("ℹ️ BUYER_ROLE_ID isn't set, so no one gets the buyer role.");
+  const current = await refreshSettings().catch((e) => {
+    console.warn(`Couldn't load /setup settings: ${e?.message ?? e}`);
+    return null;
+  });
+  if (current && !current.buyerRoleId) console.warn("ℹ️ No buyer role yet. An admin can set one with /setup buyer-role.");
 
   const sync = async () => {
     try {
+      await refreshSettings();
       const added = await syncBuyerRoles(ready);
       if (added) console.log(`Gave the buyer role to ${added} member${added === 1 ? "" : "s"}.`);
     } catch (e) {

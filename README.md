@@ -17,7 +17,7 @@ and the website use.
 | `/link` / `/unlink` | Link an account made in the app or on the website. |
 | `/pricing`, `/download`, `/status`, `/help` | Info. |
 
-**Staff** (anyone with Administrator, or a role in `STAFF_ROLE_IDS`)
+**Staff** (anyone with Administrator, or a staff role added with `/setup staff-add`)
 
 | Command | What it does |
 | --- | --- |
@@ -29,6 +29,17 @@ and the website use.
 | `/keyinfo`, `/revokekey` | Check or cancel an unused key. |
 | `/stats` | Accounts and keys at a glance. |
 | `/panel channel` | Posts a message with buttons: Redeem a key, My account, Reset HWID, Reset password. |
+
+**Server admins** (Administrator permission only)
+
+| Command | What it does |
+| --- | --- |
+| `/setup view` | Shows the current settings. |
+| `/setup buyer-role role` | The role buyers get. Checks the bot can actually give it. |
+| `/setup staff-add role` / `/setup staff-remove role` | Which roles can use the staff commands. |
+| `/setup log-channel channel` | Where logs go; leave the channel empty to turn logs off. |
+
+Settings are saved in the database, so they survive restarts and redeploys.
 
 The buyer role is given when someone redeems or links an account with time,
 and every 10 minutes the bot catches anyone who got time elsewhere. It's never
@@ -43,7 +54,9 @@ taken away.
    **Send Messages**, **Embed Links** and **Attach Files**. Open the link and
    add it to your server.
 3. **Put its role above the buyer role.** Server Settings → Roles: drag the
-   bot's role higher than the buyer role, or it can't give it.
+   bot's role higher than the buyer role, or it can't give it. Then, in
+   Discord, run `/setup buyer-role`, `/setup staff-add` and
+   `/setup log-channel`.
 4. **Fill in `.env`.** Copy `.env.example` to `.env` and fill it in. The
    Supabase secret key is under Project Settings → API Keys.
 5. **Start it.** Double-click `start-bot.bat` (needs Node.js 20+ from
