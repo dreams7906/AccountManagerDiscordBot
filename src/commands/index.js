@@ -14,12 +14,15 @@ import resetpassword from "./resetpassword.js";
 import setup from "./setup.js";
 import stats from "./stats.js";
 import status from "./status.js";
+import trial from "./trial.js";
+import trials from "./trials.js";
 import unlink from "./unlink.js";
 
 /** Every command, in the order /help lists them. */
 export const commands = [
   help,
   redeem,
+  trial,
   account,
   hwidreset,
   resetpassword,
@@ -38,6 +41,7 @@ export const commands = [
   keyinfo,
   revokekey,
   stats,
+  trials,
   panel,
   setup,
 ];

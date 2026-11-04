@@ -19,14 +19,15 @@ export function target(interaction) {
   };
 }
 
-/** Suggests plans as staff type, from the plans table. */
+/** Suggests key lengths as staff type: every plan except the free trial, shortest first. */
 export async function planAutocomplete(interaction) {
   const typed = interaction.options.getFocused().toLowerCase();
   const plans = await loadPlans().catch(() => []);
   await interaction.respond(
     plans
-      .filter((p) => p.active && (!typed || p.id.includes(typed) || p.name.toLowerCase().includes(typed)))
+      .filter((p) => p.id !== "trial" && (!typed || p.id.includes(typed) || p.name.toLowerCase().includes(typed)))
+      .sort((a, b) => (a.duration_days ?? 99999) - (b.duration_days ?? 99999))
       .slice(0, 25)
-      .map((p) => ({ name: `${lengthLabel(p.duration_days)} · $${Number(p.price_usd).toFixed(2)}`, value: p.id })),
+      .map((p) => ({ name: `${lengthLabel(p.duration_days)}${p.active ? ` · $${Number(p.price_usd).toFixed(2)}` : " · not sold"}`, value: p.id })),
   );
 }

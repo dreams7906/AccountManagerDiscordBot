@@ -4,6 +4,7 @@ import { log } from "../log.js";
 import { syncBuyerRoles } from "../roles.js";
 import { changeSetting, refreshSettings } from "../settings.js";
 import { base, COLORS, privately, when } from "../ui.js";
+import { trialPanel } from "./trial.js";
 
 const role = (desc) => (o) => o.setName("role").setDescription(desc).setRequired(true);
 
@@ -14,6 +15,7 @@ function settingsEmbed(s, note) {
     .addFields(
       { name: "Buyer role", value: s.buyerRoleId ? `<@&${s.buyerRoleId}>` : "Not set: no one gets a role", inline: true },
       { name: "Log channel", value: s.logChannelId ? `<#${s.logChannelId}>` : "Off", inline: true },
+      { name: "Free trials", value: s.trialsEnabled ? "On" : "Paused", inline: true },
       { name: "Staff roles", value: s.staffRoleIds.length ? s.staffRoleIds.map((id) => `<@&${id}>`).join(" ") : "Only admins", inline: false },
       { name: "Last changed", value: s.updatedAt ? `${when(s.updatedAt)} by ${s.updatedBy ?? "?"}` : "Never", inline: false },
     );
@@ -46,6 +48,18 @@ export default {
         .setName("log-channel")
         .setDescription("Where to post logs of keys, resets and bans; leave empty to turn logs off")
         .addChannelOption((o) => o.setName("channel").setDescription("A staff-only text channel").addChannelTypes(ChannelType.GuildText)),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("trials")
+        .setDescription("Turn free trials on or off")
+        .addStringOption((o) => o.setName("state").setDescription("On or off").setRequired(true).addChoices({ name: "On", value: "on" }, { name: "Off", value: "off" })),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("trial-panel")
+        .setDescription("Post a Get free trial button in a channel; keys go out by DM")
+        .addChannelOption((o) => o.setName("channel").setDescription("Where to post it (default: here)").addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)),
     ),
 
   async execute(interaction) {
@@ -77,6 +91,15 @@ export default {
       const picked = interaction.options.getRole("role", true);
       s = await changeSetting("staff_remove", picked.id, by);
       note = `✅ ${picked} can no longer use the staff commands.`;
+    } else if (sub === "trials") {
+      const on = interaction.options.getString("state", true) === "on";
+      s = await changeSetting("trials", on ? "on" : "off", by);
+      note = on ? "✅ Free trials are on." : "✅ Free trials are paused. The trial button now tells people to check back later.";
+    } else if (sub === "trial-panel") {
+      const channel = interaction.options.getChannel("channel") ?? interaction.channel;
+      await channel.send(trialPanel());
+      s = await refreshSettings();
+      note = `✅ Trial panel posted in ${channel}.${s.trialsEnabled ? "" : " Trials are paused; turn them on with /setup trials."}`;
     } else if (sub === "log-channel") {
       const channel = interaction.options.getChannel("channel");
       if (channel) {

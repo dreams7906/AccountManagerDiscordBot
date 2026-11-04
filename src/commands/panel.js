@@ -5,6 +5,7 @@ import account from "./account.js";
 import hwidreset from "./hwidreset.js";
 import { openRedeem } from "./redeem.js";
 import resetpassword from "./resetpassword.js";
+import { claimTrial } from "./trial.js";
 
 /** The message members click instead of typing commands. */
 function panelMessage() {
@@ -12,6 +13,7 @@ function panelMessage() {
     .setDescription(
       [
         "**New here?** Press **Redeem a key** to make your account. Your Discord is linked automatically.",
+        "**Want to try it first?** Press **Free trial** for one day, once per person.",
         "**Have time already?** Redeem another key to add more.",
         "",
         "🖥️ **Reset HWID** moves your account to another PC (once a day).",
@@ -22,6 +24,7 @@ function panelMessage() {
     );
   const actions = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId("panel:redeem").setLabel("Redeem a key").setEmoji("🔑").setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId("panel:trial").setLabel("Free trial").setEmoji("🎁").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId("panel:account").setLabel("My account").setEmoji("👤").setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId("panel:hwid").setLabel("Reset HWID").setEmoji("🖥️").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId("panel:password").setLabel("Reset password").setEmoji("🔐").setStyle(ButtonStyle.Secondary),
@@ -50,6 +53,7 @@ export default {
   publicButtons: true,
   buttons: {
     redeem: (interaction) => openRedeem(interaction),
+    trial: (interaction) => claimTrial(interaction),
     account: (interaction) => account.execute(interaction),
     hwid: (interaction) => hwidreset.execute(interaction),
     password: (interaction) => resetpassword.execute(interaction),
