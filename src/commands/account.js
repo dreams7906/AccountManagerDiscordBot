@@ -15,7 +15,7 @@ export const notLinked = () =>
   privately({
     embeds: [
       base("You don't have a linked account yet").setDescription(
-        "• **Have a key?** Use **/redeem**: it makes your account, linked to your Discord.\n• **Already made one in the app or on the website?** Use **/link**.",
+        "• **Have a key?** Use **/redeem** to create your account.\n• Sign in at https://shiftam.xyz/account and choose **Continue with Discord** to verify ownership before using the app or account commands.",
       ),
     ],
     components: linkButtons(),

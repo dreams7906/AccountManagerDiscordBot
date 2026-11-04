@@ -36,12 +36,12 @@ async function createAccount(interaction) {
     p_password: interaction.fields.getTextInputValue("password"),
     p_key: interaction.fields.getTextInputValue("key").trim(),
   });
-  const role = account.active && (await giveBuyerRole(interaction.guild, interaction.user.id));
+  const role = account.discordVerified && account.active && (await giveBuyerRole(interaction.guild, interaction.user.id));
   await interaction.editReply(
     privately({
       content: [
-        "Your account is ready and linked to your Discord.",
-        "Open the app, choose **Sign in**, and use the username and password you just picked. It locks to the first PC you sign in on.",
+        "Your account was created. Discord verification is required before using the app.",
+        "Sign in at https://shiftam.xyz/account and choose **Continue with Discord**, then sign in to the app. Trials must authorize the Discord account that claimed the key.",
         role ? "Buyer role added." : "",
       ]
         .filter(Boolean)
