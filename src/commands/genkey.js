@@ -23,7 +23,7 @@ export default {
     const amount = interaction.options.getInteger("amount") ?? 1;
     const note = interaction.options.getString("note") ?? "";
     const sendTo = interaction.options.getUser("send_to");
-    const plan = (await loadPlans()).find((p) => p.id === planId);
+    const plan = (await loadPlans()).find((p) => p.id === planId && p.active);
     if (!plan) throw new UserError("Pick a plan from the list.");
     await interaction.deferReply({ flags: 64 });
 

@@ -25,7 +25,7 @@ export async function planAutocomplete(interaction) {
   const plans = await loadPlans().catch(() => []);
   await interaction.respond(
     plans
-      .filter((p) => !typed || p.id.includes(typed) || p.name.toLowerCase().includes(typed))
+      .filter((p) => p.active && (!typed || p.id.includes(typed) || p.name.toLowerCase().includes(typed)))
       .slice(0, 25)
       .map((p) => ({ name: `${lengthLabel(p.duration_days)} · $${Number(p.price_usd).toFixed(2)}`, value: p.id })),
   );
