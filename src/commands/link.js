@@ -30,11 +30,11 @@ export default {
       const role = account.active && (await giveBuyerRole(interaction.guild, interaction.user.id));
       await interaction.editReply(
         privately({
-          content: `🔗 **Linked!** You can now use /hwidreset, /redeem, /resetpassword and /account here.${role ? " You also got the buyer role." : ""}`,
+          content: `Account linked. Manage it here with /account, /hwidreset and /redeem.${role ? " Buyer role added." : ""}`,
           embeds: [accountEmbed(account)],
         }),
       );
-      await log(interaction.client, { title: "🔗 Linked", description: `<@${interaction.user.id}> linked **${account.username}**`, color: COLORS.ok, by: interaction.user });
+      await log(interaction.client, { title: "Linked", description: `<@${interaction.user.id}> linked **${account.username}**`, color: COLORS.ok, by: interaction.user });
     },
   },
 };

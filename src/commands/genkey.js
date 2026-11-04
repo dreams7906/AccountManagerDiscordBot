@@ -38,14 +38,14 @@ export default {
       try {
         await sendTo.send({
           embeds: [
-            base(`🔑 Your ${config.brand} key${keys.length > 1 ? "s" : ""}`, COLORS.ok).setDescription(
+            base(`Your ${config.brand} key${keys.length > 1 ? "s" : ""}`, COLORS.ok).setDescription(
               `${length} each.\n\`\`\`\n${keys.join("\n")}\n\`\`\`\nRun **/redeem** in the server to make your account (or add time to it), or choose **Register** in the app.`,
             ),
           ],
         });
-        dm = `\n📨 Sent to <@${sendTo.id}> by DM.`;
+        dm = `\nSent to <@${sendTo.id}> by DM.`;
       } catch {
-        dm = `\n⚠️ Couldn't DM <@${sendTo.id}> (their DMs are closed). Send the keys yourself.`;
+        dm = `\nCouldn't DM <@${sendTo.id}> (their DMs are closed). Send the keys yourself.`;
       }
     }
 
@@ -54,7 +54,7 @@ export default {
     await interaction.editReply(
       privately({
         embeds: [
-          base(`🔑 Made ${keys.length} ${length} key${keys.length > 1 ? "s" : ""}`, COLORS.ok).setDescription(
+          base(`Made ${keys.length} ${length} key${keys.length > 1 ? "s" : ""}`, COLORS.ok).setDescription(
             `${inline ? `\`\`\`\n${keys.join("\n")}\n\`\`\`` : "The keys are in the attached file."}${note ? `\nNote: ${note}` : ""}${dm}`,
           ),
         ],
@@ -63,7 +63,7 @@ export default {
       }),
     );
     await log(interaction.client, {
-      title: "🔑 Keys made",
+      title: "Keys made",
       description: `${keys.length} × ${length}${note ? ` · ${note}` : ""}${sendTo ? ` · sent to <@${sendTo.id}>` : ""}`,
       color: COLORS.brand,
       by: interaction.user,

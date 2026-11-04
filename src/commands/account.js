@@ -5,10 +5,10 @@ import { accountEmbed, base, linkButtons, privately } from "../ui.js";
 /** The account card with buttons for what can be done next. */
 export function accountView(me) {
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId("account:refresh").setLabel("Refresh").setEmoji("🔄").setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId("hwidreset:ask").setLabel("Reset HWID").setEmoji("🖥️").setStyle(ButtonStyle.Primary).setDisabled(!me.deviceLocked || !me.canMoveDevice),
+    new ButtonBuilder().setCustomId("account:refresh").setLabel("Refresh").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("hwidreset:ask").setLabel("Reset HWID").setStyle(ButtonStyle.Primary).setDisabled(!me.deviceLocked || !me.canMoveDevice),
   );
-  return privately({ embeds: [accountEmbed(me, { title: `👤 Your account: ${me.username}` })], components: [row] });
+  return privately({ embeds: [accountEmbed(me, { title: `Your account: ${me.username}` })], components: [row] });
 }
 
 export const notLinked = () =>

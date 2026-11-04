@@ -76,12 +76,12 @@ client.once(Events.ClientReady, async (ready) => {
   ready.user.setPresence({ activities: [{ name: "/help · /redeem", type: ActivityType.Watching }], status: "online" });
 
   const guild = await ready.guilds.fetch(config.guildId).catch(() => null);
-  if (!guild) console.warn("⚠️ The bot isn't in the server set as DISCORD_GUILD_ID. Invite it with the link in the README.");
+  if (!guild) console.warn("The bot isn't in the server set as DISCORD_GUILD_ID. Invite it with the link in the README.");
   const current = await refreshSettings().catch((e) => {
     console.warn(`Couldn't load /setup settings: ${e?.message ?? e}`);
     return null;
   });
-  if (current && !current.buyerRoleId) console.warn("ℹ️ No buyer role yet. An admin can set one with /setup buyer-role.");
+  if (current && !current.buyerRoleId) console.warn("ℹNo buyer role yet. An admin can set one with /setup buyer-role.");
 
   const sync = async () => {
     try {

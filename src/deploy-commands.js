@@ -9,10 +9,10 @@ const rest = new REST().setToken(config.token);
 
 try {
   const saved = await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), { body });
-  console.log(`✅ Registered ${saved.length} commands in your server:`);
+  console.log(`Registered ${saved.length} commands in your server:`);
   console.log(saved.map((c) => `/${c.name}`).join("  "));
 } catch (e) {
-  console.error(`❌ Couldn't register the commands: ${e.message}`);
+  console.error(`Couldn't register the commands: ${e.message}`);
   console.error("Check DISCORD_TOKEN, DISCORD_CLIENT_ID and DISCORD_GUILD_ID in .env, and that the bot is in the server.");
   process.exit(1);
 }

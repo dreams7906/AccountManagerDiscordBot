@@ -10,11 +10,11 @@ import { openRedeem } from "./redeem.js";
 export function trialPanel() {
   return {
     embeds: [
-      base(`Try ${config.brand} free`).setDescription(
-        "Press the button to get a **1-day trial key** by DM.\nOne trial per person and per PC.",
+      base("Free trial").setDescription(
+        `Try ${config.brand} for 1 day. Your trial key is sent to you by DM.\n\nOne trial per person and per device.`,
       ),
     ],
-    components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("trial:claim").setLabel("Get free trial").setStyle(ButtonStyle.Success))],
+    components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("trial:claim").setLabel("Claim free trial").setStyle(ButtonStyle.Primary))],
   };
 }
 

@@ -11,7 +11,7 @@ async function ask(interaction, respond) {
   if (!me.deviceLocked) return respond(privately({ embeds: [notice("Nothing to reset", "Your account isn't locked to a PC right now. It locks to the next PC you sign in to the app on.")], components: [] }));
   if (!me.canMoveDevice) return respond(privately({ embeds: [notice("Already reset today", `You can reset once a day. Next reset: ${when(me.moveAvailableAt)}.`)], components: [] }));
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId("hwidreset:confirm").setLabel("Yes, reset").setEmoji("🖥️").setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId("hwidreset:confirm").setLabel("Yes, reset").setStyle(ButtonStyle.Danger),
     new ButtonBuilder().setCustomId("hwidreset:cancel").setLabel("Cancel").setStyle(ButtonStyle.Secondary),
   );
   return respond(
@@ -46,7 +46,7 @@ export default {
         embeds: [success("HWID reset", `**${account.username}** is unlocked. Sign in to the app on your new PC to lock it there.\nNext reset: ${when(account.moveAvailableAt)}.`)],
         components: [],
       });
-      await log(interaction.client, { title: "🖥️ HWID reset", description: `<@${interaction.user.id}> reset **${account.username}**`, color: COLORS.warn, by: interaction.user });
+      await log(interaction.client, { title: "HWID reset", description: `<@${interaction.user.id}> reset **${account.username}**`, color: COLORS.warn, by: interaction.user });
     },
     async cancel(interaction) {
       await interaction.update({ embeds: [base("Cancelled", COLORS.muted).setDescription("Nothing changed.")], components: [] });

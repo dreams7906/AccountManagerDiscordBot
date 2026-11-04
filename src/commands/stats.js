@@ -10,7 +10,7 @@ export default {
   async execute(interaction) {
     const s = await rpc("bot_stats");
     const n = (v) => Number(v).toLocaleString("en-US");
-    const embed = base("📊 Stats").addFields(
+    const embed = base("Stats").addFields(
       { name: "Accounts", value: n(s.accounts), inline: true },
       { name: "With time", value: n(s.active), inline: true },
       { name: "Lifetime", value: n(s.lifetime), inline: true },

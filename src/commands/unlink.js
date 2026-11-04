@@ -28,7 +28,7 @@ export default {
       await interaction.deferUpdate();
       const account = await rpc("bot_unlink", { p_discord_id: interaction.user.id });
       await interaction.editReply({ embeds: [success("Unlinked", `Your Discord is no longer linked to **${account.username}**.`)], components: [] });
-      await log(interaction.client, { title: "⛓️ Unlinked", description: `<@${interaction.user.id}> unlinked **${account.username}**`, by: interaction.user });
+      await log(interaction.client, { title: "Unlinked", description: `<@${interaction.user.id}> unlinked **${account.username}**`, by: interaction.user });
     },
     async cancel(interaction) {
       await interaction.update({ embeds: [base("Still linked", COLORS.muted).setDescription("Nothing changed.")], components: [] });

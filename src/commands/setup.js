@@ -10,7 +10,7 @@ const role = (desc) => (o) => o.setName("role").setDescription(desc).setRequired
 
 /** The current settings as a card. */
 function settingsEmbed(s, note) {
-  return base("⚙️ Bot settings")
+  return base("Bot settings")
     .setDescription(note ?? "Change these with **/setup**. Only server admins can.")
     .addFields(
       { name: "Buyer role", value: s.buyerRoleId ? `<@&${s.buyerRoleId}>` : "Not set: no one gets a role", inline: true },
@@ -79,27 +79,27 @@ export default {
       const problem = await cannotGive(interaction, picked);
       if (problem) throw new UserError(problem);
       s = await changeSetting("buyer_role", picked.id, by);
-      note = `✅ Buyer role is now ${picked}. Everyone with time gets it within a minute, and new buyers get it when they redeem or link.`;
+      note = `Buyer role is now ${picked}. Everyone with time gets it within a minute, and new buyers get it when they redeem or link.`;
       // Gives it to existing buyers now rather than at the next check.
       syncBuyerRoles(interaction.client).catch((e) => console.warn(`Role sync failed: ${e?.message ?? e}`));
     } else if (sub === "staff-add") {
       const picked = interaction.options.getRole("role", true);
       if (picked.id === interaction.guild.id) throw new UserError("That's @everyone. Pick a role only your staff have.");
       s = await changeSetting("staff_add", picked.id, by);
-      note = `✅ ${picked} can now use the staff commands.`;
+      note = `${picked} can now use the staff commands.`;
     } else if (sub === "staff-remove") {
       const picked = interaction.options.getRole("role", true);
       s = await changeSetting("staff_remove", picked.id, by);
-      note = `✅ ${picked} can no longer use the staff commands.`;
+      note = `${picked} can no longer use the staff commands.`;
     } else if (sub === "trials") {
       const on = interaction.options.getString("state", true) === "on";
       s = await changeSetting("trials", on ? "on" : "off", by);
-      note = on ? "✅ Free trials are on." : "✅ Free trials are paused. The trial button now tells people to check back later.";
+      note = on ? "Free trials are on." : "Free trials are paused. The trial button now tells people to check back later.";
     } else if (sub === "trial-panel") {
       const channel = interaction.options.getChannel("channel") ?? interaction.channel;
       await channel.send(trialPanel());
       s = await refreshSettings();
-      note = `✅ Trial panel posted in ${channel}.${s.trialsEnabled ? "" : " Trials are paused; turn them on with /setup trials."}`;
+      note = `Trial panel posted in ${channel}.${s.trialsEnabled ? "" : " Trials are paused; turn them on with /setup trials."}`;
     } else if (sub === "log-channel") {
       const channel = interaction.options.getChannel("channel");
       if (channel) {
@@ -110,10 +110,10 @@ export default {
         }
       }
       s = await changeSetting("log_channel", channel?.id ?? "", by);
-      note = channel ? `✅ Logs now go to ${channel}.` : "✅ Logs are off.";
+      note = channel ? `Logs now go to ${channel}.` : "Logs are off.";
     }
 
     await interaction.editReply(privately({ embeds: [settingsEmbed(s, note)], allowedMentions: { parse: [] } }));
-    await log(interaction.client, { title: "⚙️ Settings changed", description: note.replace("✅ ", ""), color: COLORS.brand, by: interaction.user });
+    await log(interaction.client, { title: "Settings changed", description: note.replace("", ""), color: COLORS.brand, by: interaction.user });
   },
 };

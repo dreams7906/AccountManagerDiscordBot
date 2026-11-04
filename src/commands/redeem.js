@@ -19,11 +19,11 @@ async function addTime(interaction, key) {
   const role = await giveBuyerRole(interaction.guild, interaction.user.id);
   await interaction.editReply(
     privately({
-      content: `🔑 **Key redeemed!** ${timeLine(account)}${role ? "\nYou also got the buyer role." : ""}`,
+      content: `Key redeemed. ${timeLine(account)}${role ? "\nBuyer role added." : ""}`,
       embeds: [accountEmbed(account)],
     }),
   );
-  await log(interaction.client, { title: "🔑 Key redeemed", description: `<@${interaction.user.id}> added time to **${account.username}**`, color: COLORS.ok, by: interaction.user });
+  await log(interaction.client, { title: "Key redeemed", description: `<@${interaction.user.id}> added time to **${account.username}**`, color: COLORS.ok, by: interaction.user });
 }
 
 /** Makes an account from the form; the Discord ID comes from Discord itself. */
@@ -40,9 +40,9 @@ async function createAccount(interaction) {
   await interaction.editReply(
     privately({
       content: [
-        "🎉 **Your account is ready and linked to your Discord.**",
+        "Your account is ready and linked to your Discord.",
         "Open the app, choose **Sign in**, and use the username and password you just picked. It locks to the first PC you sign in on.",
-        role ? "You also got the buyer role." : "",
+        role ? "Buyer role added." : "",
       ]
         .filter(Boolean)
         .join("\n"),
@@ -50,7 +50,7 @@ async function createAccount(interaction) {
       components: linkButtons(),
     }),
   );
-  await log(interaction.client, { title: "🆕 New account", description: `<@${interaction.user.id}> made **${account.username}** with a key`, color: COLORS.ok, by: interaction.user });
+  await log(interaction.client, { title: "New account", description: `<@${interaction.user.id}> made **${account.username}** with a key`, color: COLORS.ok, by: interaction.user });
 }
 
 /**

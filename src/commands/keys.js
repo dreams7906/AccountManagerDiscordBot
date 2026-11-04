@@ -6,8 +6,8 @@ import { base, COLORS, lengthLabel, privately, when } from "../ui.js";
 const KEY = (o) => o.setName("key").setDescription("CAM-XXXXX-XXXXX-XXXXX-XXXXX").setRequired(true).setMinLength(10).setMaxLength(40);
 
 function keyEmbed(k) {
-  const state = k.revoked ? "⛔ Revoked" : k.redeemedBy ? "✅ Used" : "🟢 Unused";
-  return base(`🔑 ${k.key}`, k.revoked ? COLORS.err : k.redeemedBy ? COLORS.muted : COLORS.ok).addFields(
+  const state = k.revoked ? "Revoked" : k.redeemedBy ? "Used" : "Unused";
+  return base(`${k.key}`, k.revoked ? COLORS.err : k.redeemedBy ? COLORS.muted : COLORS.ok).addFields(
     { name: "Status", value: state, inline: true },
     { name: "Length", value: lengthLabel(k.days), inline: true },
     { name: "Made", value: when(k.createdAt, "f"), inline: true },
@@ -39,7 +39,7 @@ export const revokekey = {
   async execute(interaction) {
     const restore = interaction.options.getBoolean("restore") ?? false;
     const k = await rpc("bot_revoke_key", { p_key: interaction.options.getString("key", true), p_revoked: !restore });
-    await interaction.reply(privately({ content: restore ? "✅ Key restored." : "⛔ Key revoked.", embeds: [keyEmbed(k)] }));
-    await log(interaction.client, { title: restore ? "🔑 Key restored" : "⛔ Key revoked", description: `\`${k.key}\` (${lengthLabel(k.days)})`, color: restore ? COLORS.ok : COLORS.err, by: interaction.user });
+    await interaction.reply(privately({ content: restore ? "Key restored." : "Key revoked.", embeds: [keyEmbed(k)] }));
+    await log(interaction.client, { title: restore ? "Key restored" : "Key revoked", description: `\`${k.key}\` (${lengthLabel(k.days)})`, color: restore ? COLORS.ok : COLORS.err, by: interaction.user });
   },
 };

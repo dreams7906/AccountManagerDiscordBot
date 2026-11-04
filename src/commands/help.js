@@ -4,10 +4,10 @@ import { config } from "../config.js";
 import { base, linkButtons, privately } from "../ui.js";
 
 const SECTIONS = [
-  ["Account", "🎮 Your account"],
-  ["Info", "ℹ️ Info"],
-  ["Staff", "🛠️ Staff"],
-  ["Admin", "⚙️ Server admins"],
+  ["Account", "Your account"],
+  ["Info", "ℹInfo"],
+  ["Staff", "Staff"],
+  ["Admin", "Server admins"],
 ];
 
 export default {
@@ -18,7 +18,7 @@ export default {
     // Imported here: the list includes this command.
     const { commands } = await import("./index.js");
     const staff = isStaff(interaction);
-    const embed = base(`📖 ${config.brand} bot`).setDescription(
+    const embed = base(`${config.brand} bot`).setDescription(
       "**Start here:** get a key, then run **/redeem**. It makes your account and links your Discord.\nEverything the bot says to you is private.",
     );
     for (const [category, title] of SECTIONS) {

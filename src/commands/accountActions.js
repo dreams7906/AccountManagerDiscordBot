@@ -21,8 +21,8 @@ function accountCommand({ name, description, extra = (b) => b, action, done, col
       const account = await rpc("bot_account_action", { ...t.args, p_action: act, p_days: days, p_reason: reason });
       if (after) await after(interaction, account);
       const text = done(account, { days, reason });
-      await interaction.editReply(privately({ content: `✅ ${text}`, embeds: [accountEmbed(account, { staff: true })], allowedMentions: { parse: [] } }));
-      await log(interaction.client, { title: `🛠️ /${name}`, description: text, color, by: interaction.user });
+      await interaction.editReply(privately({ content: `${text}`, embeds: [accountEmbed(account, { staff: true })], allowedMentions: { parse: [] } }));
+      await log(interaction.client, { title: `/${name}`, description: text, color, by: interaction.user });
     },
   };
 }

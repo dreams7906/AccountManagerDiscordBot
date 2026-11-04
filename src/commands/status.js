@@ -14,9 +14,9 @@ export default {
       .then(() => true)
       .catch(() => false);
     const dbMs = Date.now() - t0;
-    const embed = base(up ? "🟢 Everything's up" : "🔴 Account servers aren't answering", up ? COLORS.ok : COLORS.err).addFields(
-      { name: "Bot", value: `🟢 ${Math.round(interaction.client.ws.ping)} ms`, inline: true },
-      { name: "Accounts", value: up ? `🟢 ${dbMs} ms` : "🔴 Down", inline: true },
+    const embed = base(up ? "Everything's up" : "Account servers aren't answering", up ? COLORS.ok : COLORS.err).addFields(
+      { name: "Bot", value: `${Math.round(interaction.client.ws.ping)} ms`, inline: true },
+      { name: "Accounts", value: up ? `${dbMs} ms` : "Down", inline: true },
       { name: "Online since", value: when(started.toISOString()), inline: true },
     );
     await interaction.reply(privately({ embeds: [embed] }));

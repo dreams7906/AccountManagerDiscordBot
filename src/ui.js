@@ -10,7 +10,7 @@ export function base(title, color = COLORS.brand) {
   return new EmbedBuilder().setColor(color).setTitle(title).setFooter({ text: config.brand }).setTimestamp();
 }
 
-export const success = (title, description) => base(`✅ ${title}`, COLORS.ok).setDescription(description ?? null);
+export const success = (title, description) => base(`${title}`, COLORS.ok).setDescription(description ?? null);
 export const failure = (message) => base("Couldn't do that", COLORS.err).setDescription(message);
 export const notice = (title, description) => base(title, COLORS.warn).setDescription(description ?? null);
 
@@ -21,21 +21,21 @@ export function lengthLabel(days) {
 
 /** "Lifetime", "Ends in 3 days", "Expired 2 hours ago". */
 export function timeLine(a) {
-  if (a.lifetime) return "♾️ Lifetime";
+  if (a.lifetime) return "Lifetime";
   if (!a.expiresAt) return "No time yet";
-  return new Date(a.expiresAt) > new Date() ? `⏳ Ends ${when(a.expiresAt)} (${when(a.expiresAt, "f")})` : `⌛ Expired ${when(a.expiresAt)}`;
+  return new Date(a.expiresAt) > new Date() ? `Ends ${when(a.expiresAt)} (${when(a.expiresAt, "f")})` : `Expired ${when(a.expiresAt)}`;
 }
 
 /** An account card. Staff see a few extra lines. */
 export function accountEmbed(a, { staff = false, title } = {}) {
-  const status = a.banned ? "⛔ Banned" : a.active ? "🟢 Active" : "🔴 No time left";
-  const pc = a.deviceLocked ? "🔒 Locked to a PC" : "🔓 Not locked to a PC";
+  const status = a.banned ? "Banned" : a.active ? "Active" : "No time left";
+  const pc = a.deviceLocked ? "Locked to a PC" : "Not locked to a PC";
   const reset = !a.deviceLocked
     ? "Nothing to reset"
     : a.canMoveDevice
       ? "Available now"
       : `Available ${when(a.moveAvailableAt)}`;
-  const embed = base(title ?? `👤 ${a.username}`, a.banned ? COLORS.err : a.active ? COLORS.ok : COLORS.warn).addFields(
+  const embed = base(title ?? `${a.username}`, a.banned ? COLORS.err : a.active ? COLORS.ok : COLORS.warn).addFields(
     { name: "Status", value: status, inline: true },
     { name: "Time", value: timeLine(a), inline: true },
     { name: "PC", value: pc, inline: true },
@@ -58,9 +58,9 @@ export function accountEmbed(a, { staff = false, title } = {}) {
 /** Website and download buttons, when those are set up. */
 export function linkButtons(...extra) {
   const row = new ActionRowBuilder();
-  if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Website").setEmoji("🌐").setURL(config.websiteUrl));
-  if (config.downloadUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Download").setEmoji("⬇️").setURL(config.downloadUrl));
-  if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Buy a key").setEmoji("🔑").setURL(`${config.websiteUrl}/#pricing`));
+  if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Website").setURL(config.websiteUrl));
+  if (config.downloadUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Download").setURL(config.downloadUrl));
+  if (config.websiteUrl) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Buy a key").setURL(`${config.websiteUrl}/#pricing`));
   row.addComponents(...extra);
   return row.components.length ? [row] : [];
 }
