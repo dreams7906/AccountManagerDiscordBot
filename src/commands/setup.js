@@ -14,7 +14,10 @@ function settingsEmbed(s, note) {
     .setDescription(note ?? "Change these with **/setup**. Only server admins can.")
     .addFields(
       { name: "Buyer role", value: s.buyerRoleId ? `<@&${s.buyerRoleId}>` : "Not set: no one gets a role", inline: true },
-      { name: "Log channel", value: s.logChannelId ? `<#${s.logChannelId}>` : "Off", inline: true },
+      { name: "General logs", value: s.logChannelId ? `<#${s.logChannelId}>` : "Off", inline: true },
+      { name: "Purchase logs", value: s.purchaseLogChannelId ? `<#${s.purchaseLogChannelId}>` : "General", inline: true },
+      { name: "Staff logs", value: s.staffLogChannelId ? `<#${s.staffLogChannelId}>` : "General", inline: true },
+      { name: "Account logs", value: s.accountLogChannelId ? `<#${s.accountLogChannelId}>` : "General", inline: true },
       { name: "Free trials", value: s.trialsEnabled ? "On" : "Paused", inline: true },
       { name: "Staff roles", value: s.staffRoleIds.length ? s.staffRoleIds.map((id) => `<@&${id}>`).join(" ") : "Only admins", inline: false },
       { name: "Last changed", value: s.updatedAt ? `${when(s.updatedAt)} by ${s.updatedBy ?? "?"}` : "Never", inline: false },
@@ -46,7 +49,25 @@ export default {
     .addSubcommand((s) =>
       s
         .setName("log-channel")
-        .setDescription("Where to post logs of keys, resets and bans; leave empty to turn logs off")
+        .setDescription("General logs, and any kind without its own channel; leave empty to turn off")
+        .addChannelOption((o) => o.setName("channel").setDescription("A staff-only text channel").addChannelTypes(ChannelType.GuildText)),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("purchase-logs")
+        .setDescription("Where website sales are posted; leave empty to use the general log channel")
+        .addChannelOption((o) => o.setName("channel").setDescription("A staff-only text channel").addChannelTypes(ChannelType.GuildText)),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("staff-logs")
+        .setDescription("Where staff actions are posted (Discord and website); empty uses the general channel")
+        .addChannelOption((o) => o.setName("channel").setDescription("A staff-only text channel").addChannelTypes(ChannelType.GuildText)),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("account-logs")
+        .setDescription("Where sign-ups, redemptions, HWID resets and trials are posted; empty uses general")
         .addChannelOption((o) => o.setName("channel").setDescription("A staff-only text channel").addChannelTypes(ChannelType.GuildText)),
     )
     .addSubcommand((s) =>
@@ -100,7 +121,7 @@ export default {
       await channel.send(trialPanel());
       s = await refreshSettings();
       note = `Trial panel posted in ${channel}.${s.trialsEnabled ? "" : " Trials are paused; turn them on with /setup trials."}`;
-    } else if (sub === "log-channel") {
+    } else if (["log-channel", "purchase-logs", "staff-logs", "account-logs"].includes(sub)) {
       const channel = interaction.options.getChannel("channel");
       if (channel) {
         const me = await interaction.guild.members.fetchMe();
@@ -109,11 +130,12 @@ export default {
           throw new UserError(`I can't post in ${channel}. Let my role view it, send messages and embed links there, then try again.`);
         }
       }
-      s = await changeSetting("log_channel", channel?.id ?? "", by);
-      note = channel ? `Logs now go to ${channel}.` : "Logs are off.";
+      const kind = { "log-channel": ["log_channel", "General logs"], "purchase-logs": ["log_purchase", "Purchase logs"], "staff-logs": ["log_staff", "Staff logs"], "account-logs": ["log_account", "Account logs"] }[sub];
+      s = await changeSetting(kind[0], channel?.id ?? "", by);
+      note = channel ? `${kind[1]} now go to ${channel}.` : sub === "log-channel" ? "General logs are off." : `${kind[1]} now go to the general log channel.`;
     }
 
     await interaction.editReply(privately({ embeds: [settingsEmbed(s, note)], allowedMentions: { parse: [] } }));
-    await log(interaction.client, { title: "Settings changed", description: note.replace("", ""), color: COLORS.brand, by: interaction.user });
+    await log(interaction.client, { category: "staff", title: "Settings changed", description: note, color: COLORS.brand, by: interaction.user });
   },
 };

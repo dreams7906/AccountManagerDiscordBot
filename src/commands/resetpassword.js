@@ -29,7 +29,7 @@ export default {
       await interaction.editReply(
         privately({ embeds: [success("Password changed", `**${account.username}** has a new password. You've been signed out everywhere, so sign in to the app again with it.`)] }),
       );
-      await log(interaction.client, { title: "Password reset", description: `<@${interaction.user.id}> reset the password for **${account.username}**`, color: COLORS.warn, by: interaction.user });
+      await log(interaction.client, { category: "account", title: "Password reset", description: `<@${interaction.user.id}> reset the password for **${account.username}**`, color: COLORS.warn, by: interaction.user });
     },
   },
 };

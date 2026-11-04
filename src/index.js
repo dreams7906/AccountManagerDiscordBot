@@ -3,6 +3,7 @@ import { isAdmin, isStaff } from "./access.js";
 import { byName } from "./commands/index.js";
 import { config } from "./config.js";
 import { UserError } from "./db.js";
+import { postFeed } from "./log.js";
 import { syncBuyerRoles, syncStaff } from "./roles.js";
 import { refreshSettings } from "./settings.js";
 import { failure, privately } from "./ui.js";
@@ -96,6 +97,11 @@ client.once(Events.ClientReady, async (ready) => {
   };
   setTimeout(sync, 15_000);
   setInterval(sync, ROLE_SYNC_EVERY);
+
+  // Sales, sign-ups and website actions, posted to the log channels.
+  const feed = () => postFeed(ready).catch((e) => console.warn(`Log feed failed: ${e?.message ?? e}`));
+  setTimeout(feed, 20_000);
+  setInterval(feed, 60_000);
 });
 
 process.on("unhandledRejection", (e) => console.error("Unhandled:", e));

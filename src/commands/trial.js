@@ -53,7 +53,7 @@ export async function claimTrial(interaction) {
       components: [row],
     }),
   );
-  await log(interaction.client, { title: "Trial claimed", description: `<@${interaction.user.id}> claimed a free trial${dmed ? "" : " (DMs closed)"}`, color: COLORS.brand, by: interaction.user });
+  await log(interaction.client, { category: "account", title: "Trial claimed", description: `<@${interaction.user.id}> claimed a free trial${dmed ? "" : " (DMs closed)"}`, color: COLORS.brand, by: interaction.user });
 }
 
 export default {

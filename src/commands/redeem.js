@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { rpc } from "../db.js";
-import { log } from "../log.js";
 import { giveBuyerRole } from "../roles.js";
 import { accountEmbed, COLORS, linkButtons, privately, timeLine } from "../ui.js";
 
@@ -23,7 +22,6 @@ async function addTime(interaction, key) {
       embeds: [accountEmbed(account)],
     }),
   );
-  await log(interaction.client, { title: "Key redeemed", description: `<@${interaction.user.id}> added time to **${account.username}**`, color: COLORS.ok, by: interaction.user });
 }
 
 /** Makes an account from the form; the Discord ID comes from Discord itself. */
@@ -50,7 +48,6 @@ async function createAccount(interaction) {
       components: linkButtons(),
     }),
   );
-  await log(interaction.client, { title: "New account", description: `<@${interaction.user.id}> made **${account.username}** with a key`, color: COLORS.ok, by: interaction.user });
 }
 
 /**

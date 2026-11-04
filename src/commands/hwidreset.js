@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from "discord.js";
 import { rpc } from "../db.js";
-import { log } from "../log.js";
 import { base, COLORS, notice, privately, success, when } from "../ui.js";
 import { notLinked } from "./account.js";
 
@@ -46,7 +45,6 @@ export default {
         embeds: [success("HWID reset", `**${account.username}** is unlocked. Sign in to the app on your new PC to lock it there.\nNext reset: ${when(account.moveAvailableAt)}.`)],
         components: [],
       });
-      await log(interaction.client, { title: "HWID reset", description: `<@${interaction.user.id}> reset **${account.username}**`, color: COLORS.warn, by: interaction.user });
     },
     async cancel(interaction) {
       await interaction.update({ embeds: [base("Cancelled", COLORS.muted).setDescription("Nothing changed.")], components: [] });
