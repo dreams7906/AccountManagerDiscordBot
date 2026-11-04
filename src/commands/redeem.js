@@ -4,7 +4,7 @@ import { log } from "../log.js";
 import { giveBuyerRole } from "../roles.js";
 import { accountEmbed, COLORS, linkButtons, privately, timeLine } from "../ui.js";
 
-const KEY_HINT = "CAM-XXXXX-XXXXX-XXXXX-XXXXX";
+const KEY_HINT = "SAM-XXXXX-XXXXX-XXXXX-XXXXX";
 
 function input(id, label, { min = 1, max = 100, placeholder = "", value = "" } = {}) {
   const box = new TextInputBuilder().setCustomId(id).setLabel(label).setStyle(TextInputStyle.Short).setRequired(true).setMinLength(min).setMaxLength(max);

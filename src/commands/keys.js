@@ -3,7 +3,7 @@ import { rpc, UserError } from "../db.js";
 import { log } from "../log.js";
 import { base, COLORS, lengthLabel, privately, when } from "../ui.js";
 
-const KEY = (o) => o.setName("key").setDescription("CAM-XXXXX-XXXXX-XXXXX-XXXXX").setRequired(true).setMinLength(10).setMaxLength(40);
+const KEY = (o) => o.setName("key").setDescription("SAM-XXXXX-XXXXX-XXXXX-XXXXX").setRequired(true).setMinLength(10).setMaxLength(40);
 
 function keyEmbed(k) {
   const state = k.revoked ? "Revoked" : k.redeemedBy ? "Used" : "Unused";
