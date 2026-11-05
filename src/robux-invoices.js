@@ -12,14 +12,14 @@ export function startRobuxInvoices() {
     const retryColumn = paid ? "invoice_retry_at" : "pending_invoice_retry_at";
     try {
       const due = orders.select("invoice_number,invoice_email,invoice_price,plan_id,expires_at")
-        .not("invoice_email", "is", null)
+        .not("invoice_email", "is", null).is("cancelled_at", null)
         .is(sentColumn, null).lte(retryColumn, now).order(retryColumn).limit(10);
       const { data, error } = await (paid ? due.not("sale_id", "is", null) : due.is("sale_id", null).gt("expires_at", now));
       if (error) throw new Error(`Invoice lookup failed (${error.code})`);
       for (const invoice of data) {
         const retryAt = new Date(Date.now() + 300000).toISOString();
         const reserve = orders.update({ [retryColumn]: retryAt })
-          .eq("invoice_number", invoice.invoice_number).is(sentColumn, null).lte(retryColumn, now);
+          .eq("invoice_number", invoice.invoice_number).is("cancelled_at", null).is(sentColumn, null).lte(retryColumn, now);
         const { data: reserved, error: reserveError } = await (paid ? reserve.not("sale_id", "is", null)
           : reserve.is("sale_id", null).gt("expires_at", now)).select("invoice_number").maybeSingle();
         if (reserveError) throw new Error(`Invoice reservation failed (${reserveError.code})`);

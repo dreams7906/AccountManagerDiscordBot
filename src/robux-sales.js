@@ -14,7 +14,7 @@ export function startRobuxSales() {
     try {
       const { data: orders, error } = await db().from("robux_checkout_orders")
         .select("order_token,group_id,pass_id,buyer_id,created_at")
-        .is("sale_id", null).gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString())
+        .is("sale_id", null).is("cancelled_at", null).gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString())
         .order("created_at").limit(500);
       if (error) throw new Error("pending orders unavailable");
       const groups = new Map();
