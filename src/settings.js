@@ -8,6 +8,7 @@ import { rpc } from "./db.js";
 let saved = { buyerRoleId: null, staffRoleIds: [], logChannelId: null, purchaseLogChannelId: null, staffLogChannelId: null, accountLogChannelId: null, trialsEnabled: true, updatedBy: null, updatedAt: null };
 
 const clean = (s) => ({
+  verifiedRoleId: s?.verifiedRoleId ?? null,
   buyerRoleId: s?.buyerRoleId ?? null,
   staffRoleIds: Array.isArray(s?.staffRoleIds) ? s.staffRoleIds : [],
   logChannelId: s?.logChannelId ?? null,
@@ -22,6 +23,7 @@ const clean = (s) => ({
 /** What the bot uses right now. */
 export function settings() {
   return {
+    verifiedRoleId: saved.verifiedRoleId ?? null,
     buyerRoleId: saved.buyerRoleId || config.buyerRoleId || null,
     staffRoleIds: [...new Set([...saved.staffRoleIds, ...config.staffRoleIds])],
     logChannelId: saved.logChannelId || config.logChannelId || null,

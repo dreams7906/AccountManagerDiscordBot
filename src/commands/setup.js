@@ -5,6 +5,9 @@ import { syncBuyerRoles } from "../roles.js";
 import { changeSetting, refreshSettings } from "../settings.js";
 import { base, COLORS, privately, when } from "../ui.js";
 import { trialPanel } from "./trial.js";
+import { verificationPanel } from './verify.js';
+import { verificationRoleProblem, syncVerifiedRoles } from '../verification.js';
+import { settings } from '../settings.js';
 
 const role = (desc) => (o) => o.setName("role").setDescription(desc).setRequired(true);
 
@@ -14,6 +17,7 @@ function settingsEmbed(s, note) {
     .setDescription(note ?? "Change these with **/setup**. Only server admins can.")
     .addFields(
       { name: "Buyer role", value: s.buyerRoleId ? `<@&${s.buyerRoleId}>` : "Not set: no one gets a role", inline: true },
+      { name: 'Verified role', value: s.verifiedRoleId ? `<@&${s.verifiedRoleId}>` : 'Not configured', inline: true },
       { name: "General logs", value: s.logChannelId ? `<#${s.logChannelId}>` : "Off", inline: true },
       { name: "Purchase logs", value: s.purchaseLogChannelId ? `<#${s.purchaseLogChannelId}>` : "General", inline: true },
       { name: "Staff logs", value: s.staffLogChannelId ? `<#${s.staffLogChannelId}>` : "General", inline: true },
@@ -44,6 +48,9 @@ export default {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand((s) => s.setName("view").setDescription("See the current settings"))
     .addSubcommand((s) => s.setName("buyer-role").setDescription("The role people get when they have an account with time").addRoleOption(role("The buyer role")))
+    .addSubcommand(s => s.setName('verified-role').setDescription('Choose the role for officially verified Discord members').addRoleOption(role('The verified member role')))
+    .addSubcommand(s => s.setName('verify-panel').setDescription('Post the verification embed with a Verify now! button')
+      .addChannelOption(o => o.setName('channel').setDescription('Verification channel (default: here)').addChannelTypes(ChannelType.GuildText,ChannelType.GuildAnnouncement)))
     .addSubcommand((s) => s.setName("staff-add").setDescription("Let a role use the staff commands").addRoleOption(role("The staff role")))
     .addSubcommand((s) => s.setName("staff-remove").setDescription("Stop a role using the staff commands").addRoleOption(role("The role to remove")))
     .addSubcommand((s) =>
@@ -95,7 +102,23 @@ export default {
     let s;
     let note;
 
-    if (sub === "buyer-role") {
+    if (sub === 'verified-role') {
+      const picked=interaction.options.getRole('role',true);
+      const problem=verificationRoleProblem(picked,settings().staffRoleIds) || await cannotGive(interaction,picked);
+      if (problem) throw new UserError(problem);
+      s=await changeSetting('verified_role',picked.id,by);
+      note=`Verified members now receive ${picked}. Members already verified through ShiftAM are included automatically.`;
+      syncVerifiedRoles(interaction.client).catch(error => console.warn(`Verification sync failed: ${error.message}`));
+    } else if (sub === 'verify-panel') {
+      s=await refreshSettings();
+      if (!s.verifiedRoleId) throw new UserError('Set /setup verified-role first.');
+      const channel=interaction.options.getChannel('channel') ?? interaction.channel;
+      const me=await interaction.guild.members.fetchMe();
+      if (!channel?.permissionsFor(me)?.has([PermissionFlagsBits.ViewChannel,PermissionFlagsBits.SendMessages,PermissionFlagsBits.EmbedLinks]))
+        throw new UserError('Let the bot view the verification channel, send messages and embed links.');
+      await channel.send(verificationPanel());
+      note=`Verification panel posted in ${channel}.`;
+    } else if (sub === "buyer-role") {
       const picked = interaction.options.getRole("role", true);
       const problem = await cannotGive(interaction, picked);
       if (problem) throw new UserError(problem);
@@ -105,6 +128,7 @@ export default {
       syncBuyerRoles(interaction.client).catch((e) => console.warn(`Role sync failed: ${e?.message ?? e}`));
     } else if (sub === "staff-add") {
       const picked = interaction.options.getRole("role", true);
+      if (picked.id === settings().verifiedRoleId) throw new UserError('The public verified role cannot also be a staff role. Choose a separate staff role.');
       if (picked.id === interaction.guild.id) throw new UserError("That's @everyone. Pick a role only your staff have.");
       s = await changeSetting("staff_add", picked.id, by);
       note = `${picked} can now use the staff commands.`;

@@ -7,6 +7,7 @@ import { postFeed } from "./log.js";
 import { syncBuyerRoles, syncStaff } from "./roles.js";
 import { refreshSettings } from "./settings.js";
 import { failure, privately } from "./ui.js";
+import { syncVerifiedRoles } from './verification.js';
 
 const ROLE_SYNC_EVERY = 10 * 60_000;
 
@@ -97,6 +98,12 @@ client.once(Events.ClientReady, async (ready) => {
   };
   setTimeout(sync, 15_000);
   setInterval(sync, ROLE_SYNC_EVERY);
+  const verifyRoles = async () => {
+    try { await refreshSettings(); await syncVerifiedRoles(ready); }
+    catch (error) { console.warn(`Verification role sync failed: ${error.message}`); }
+  };
+  setTimeout(verifyRoles, 5000);
+  setInterval(verifyRoles, 30_000);
 
   // Sales, sign-ups and website actions, posted to the log channels.
   const feed = () => postFeed(ready).catch((e) => console.warn(`Log feed failed: ${e?.message ?? e}`));

@@ -17,6 +17,7 @@ import status from "./status.js";
 import trial from "./trial.js";
 import trials from "./trials.js";
 import unlink from "./unlink.js";
+import verify from "./verify.js";
 
 /** Every command, in the order /help lists them. */
 export const commands = [
@@ -28,6 +29,7 @@ export const commands = [
   resetpassword,
   link,
   unlink,
+  verify,
   pricing,
   download,
   status,

@@ -74,8 +74,19 @@ taken away.
 
 Then run `/panel` in your support channel.
 
+## Server verification
+
+1. Set `/setup verified-role role:@Verified`. Use a normal member role, separate from buyer or staff roles, and keep the bot's role above it with Manage Roles enabled.
+2. Run `/setup verify-panel channel:#verify` to post **✅ Verification required** with the **Verify now!** button.
+3. Members authorize through the official Discord application. No ShiftAM account or purchase is needed. The bot adds the role and updates its private reply to **Verification successful**.
+
+Members who already verified a linked ShiftAM account are included automatically. The bot checks membership every 30 seconds, including rejoins; no privileged Server Members intent is required. At large member counts, Discord rate limits can extend the interval. `/verify` checks an individual member immediately.
+
+Only verified Discord identities are trusted. Server verification does not grant a ShiftAM license or staff access. Changing the configured role does not remove previously assigned roles.
+
 ## Commands for developers
 
 - `npm run check`: checks every command is valid, no Discord login needed
+- `npm test`: verifies role restrictions, hierarchy, repeat checks and the panel
 - `npm run deploy`: registers the slash commands in your server
 - `npm start`: runs the bot
