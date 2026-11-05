@@ -10,6 +10,7 @@ import lookup from "./lookup.js";
 import panel from "./panel.js";
 import pricing from "./pricing.js";
 import redeem from "./redeem.js";
+import remote from "./remote.js";
 import resetpassword from "./resetpassword.js";
 import setup from "./setup.js";
 import stats from "./stats.js";
@@ -25,6 +26,7 @@ export const commands = [
   redeem,
   trial,
   account,
+  remote,
   hwidreset,
   resetpassword,
   link,
