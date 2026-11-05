@@ -114,7 +114,7 @@ function askModal(kind) {
 
 async function act(interaction, action, target, place = null) {
   const v = await rpc("bot_remote_command", { p_discord_id: interaction.user.id, p_action: action, p_target: target, p_place: place });
-  return view(v, `Sent: **${ACTION[action]}**. Your PC picks it up within about 20 seconds.`);
+  return view(v, `Sent: **${ACTION[action]}**. Your PC will pick it up on its next check.`);
 }
 
 export default {
