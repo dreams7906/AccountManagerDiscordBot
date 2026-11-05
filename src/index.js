@@ -3,6 +3,7 @@ import { isAdmin, isStaff } from "./access.js";
 import { byName } from "./commands/index.js";
 import { config } from "./config.js";
 import { startRobuxSales } from "./robux-sales.js";
+import { startRobuxInvoices } from "./robux-invoices.js";
 import { UserError } from "./db.js";
 import { postFeed } from "./log.js";
 import { syncBuyerRoles, syncStaff } from "./roles.js";
@@ -76,6 +77,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 client.once(Events.ClientReady, async (ready) => {
   startRobuxSales();
+  startRobuxInvoices();
   console.log(`Online as ${ready.user.tag}`);
   ready.user.setPresence({ activities: [{ name: "/help · /redeem", type: ActivityType.Watching }], status: "online" });
 
