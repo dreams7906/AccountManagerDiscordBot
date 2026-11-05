@@ -11,6 +11,7 @@ import panel from "./panel.js";
 import pricing from "./pricing.js";
 import redeem from "./redeem.js";
 import remote from "./remote.js";
+import robux from "./robux.js";
 import resetpassword from "./resetpassword.js";
 import setup from "./setup.js";
 import stats from "./stats.js";
@@ -48,6 +49,7 @@ export const commands = [
   trials,
   panel,
   setup,
+  robux,
 ];
 
 export const byName = new Map(commands.map((c) => [c.data.name, c]));
