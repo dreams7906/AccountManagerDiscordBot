@@ -11,7 +11,7 @@ export function startRobuxInvoices() {
     const sentColumn = paid ? "invoice_sent_at" : "pending_invoice_sent_at";
     const retryColumn = paid ? "invoice_retry_at" : "pending_invoice_retry_at";
     try {
-      const due = orders.select("invoice_number,invoice_email,invoice_price,plan_id,expires_at,pass_id")
+      const due = orders.select("invoice_number,invoice_email,invoice_price,plan_id,expires_at")
         .not("invoice_email", "is", null)
         .is(sentColumn, null).lte(retryColumn, now).order(retryColumn).limit(10);
       const { data, error } = await (paid ? due.not("sale_id", "is", null) : due.is("sale_id", null).gt("expires_at", now));
@@ -26,6 +26,12 @@ export function startRobuxInvoices() {
         if (!reserved) continue;
 
         const plan = { week: "Weekly", month: "Monthly", lifetime: "Lifetime" }[invoice.plan_id] ?? invoice.plan_id;
+        const label = paid ? "Payment confirmed" : "Awaiting payment";
+        const deadline = paid ? "" : new Intl.DateTimeFormat("en-US", {
+          dateStyle: "medium", timeStyle: "short", timeZone: "America/Los_Angeles",
+        }).format(new Date(invoice.expires_at)) + " Pacific time";
+        const invoiceUrl = `https://shiftam.xyz/thanks?invoice=${encodeURIComponent(invoice.invoice_number)}`;
+        const escapedPlan = String(plan).replace(/[&<>]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]);
         try {
           const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(account)}/email/sending/send`, {
             method: "POST",
@@ -39,16 +45,29 @@ export function startRobuxInvoices() {
                 `ShiftAM invoice ${invoice.invoice_number}`,
                 `Plan: ${plan}`,
                 `Listed price: ${invoice.invoice_price} Robux`,
-                paid ? "Payment: Confirmed by Roblox" : "Payment: Awaiting payment",
+                label,
                 ...(!paid ? [
-                  `Expires: ${new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Los_Angeles" }).format(new Date(invoice.expires_at))} Pacific time`,
-                  `Pay on Roblox: https://www.roblox.com/game-pass/${invoice.pass_id}`,
+                  `Pay before: ${deadline}`,
                 ] : []),
                 "",
-                "Get your key in the browser you used to check out: https://shiftam.xyz/thanks",
+                `Open your saved invoice in the browser you used to check out: ${invoiceUrl}`,
                 "Sign in to your dashboard: https://shiftam.xyz/account",
                 "Join our Discord community for purchase support: https://discord.gg/uMyVQHXRFv",
               ].join("\n"),
+              html: `<div style="max-width:560px;margin:0 auto;font:16px Arial,sans-serif;color:#17152c">
+                <div style="padding:24px;background:#241748;color:#fff;border-radius:14px 14px 0 0">
+                  <strong>ShiftAM</strong><h1 style="margin:8px 0 0;font-size:25px">${paid ? "Payment receipt" : "Your invoice"}</h1>
+                </div>
+                <div style="padding:24px;border:1px solid #e4def0;border-radius:0 0 14px 14px">
+                  <p style="margin-top:0;color:#6443a8"><strong>${label}</strong></p>
+                  <p><strong>${escapedPlan}</strong> · ${invoice.invoice_price} Robux (listed price)</p>
+                  <p style="font-size:13px;overflow-wrap:anywhere">Invoice ${invoice.invoice_number}</p>
+                  ${deadline ? `<p>Pay before <strong>${deadline}</strong>.</p>` : ""}
+                  <p><a href="${invoiceUrl}" style="display:inline-block;padding:12px 18px;background:#5b36ac;color:#fff;text-decoration:none;border-radius:8px">Open saved invoice</a></p>
+                  <p style="font-size:14px">Use the browser you checked out with to open this invoice.</p>
+                  <p style="font-size:14px"><a href="https://shiftam.xyz/account">Dashboard</a> · <a href="https://discord.gg/uMyVQHXRFv">Discord support</a></p>
+                </div>
+              </div>`,
             }),
           });
           const result = await response.json().catch(() => null);
