@@ -5,7 +5,7 @@ import { base, linkButtons, privately } from "../ui.js";
 
 const SECTIONS = [
   ["Account", "Your account"],
-  ["Info", "ℹInfo"],
+  ["Info", "Info"],
   ["Staff", "Staff"],
   ["Admin", "Server admins"],
 ];
