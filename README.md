@@ -80,7 +80,7 @@ Then run `/panel` in your support channel.
 2. Run `/setup verify-panel channel:#verify` to post **✅ Verification required** with the **Verify now!** button.
 3. Members authorize through the official Discord application. No ShiftAM account or purchase is needed. The bot adds the role and updates its private reply to **Verification successful**.
 
-Members who already verified a linked ShiftAM account are included automatically. The bot checks membership every 30 seconds, including rejoins; no privileged Server Members intent is required. At large member counts, Discord rate limits can extend the interval. `/verify` checks an individual member immediately.
+Members who already verified a linked ShiftAM account are included automatically. The bot checks membership every 3 seconds, including rejoins; no privileged Server Members intent is required. At large member counts, Discord rate limits can extend the interval. `/verify` checks an individual member immediately.
 
 Only verified Discord identities are trusted. Server verification does not grant a ShiftAM license or staff access. Changing the configured role does not remove previously assigned roles.
 

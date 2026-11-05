@@ -20,7 +20,7 @@ async function verify(interaction) {
   const url = new URL('/auth/discord/guild-start', website);
   url.searchParams.set('guild', interaction.guild.id);
   await interaction.editReply(privately({
-    embeds: [base('Authorize with Discord', COLORS.brand).setDescription('Use the button below to complete official Discord authorization. A purchase or ShiftAM account is not required.\n\nReturn here afterward; your role is added automatically, usually within 30 seconds. Press **Check verification** to check immediately.')],
+    embeds: [base('Authorize with Discord', COLORS.brand).setDescription('Use the button below to complete official Discord authorization. A purchase or ShiftAM account is not required.\n\nReturn here afterward; the bot checks every 3 seconds and adds your role automatically. Press **Check verification** to check immediately.')],
     components: [new ActionRowBuilder().addComponents(
       new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Authorize with Discord').setURL(url.toString()),
       new ButtonBuilder().setStyle(ButtonStyle.Secondary).setLabel('Check verification').setCustomId('verify:check'),

@@ -102,8 +102,8 @@ client.once(Events.ClientReady, async (ready) => {
     try { await refreshSettings(); await syncVerifiedRoles(ready); }
     catch (error) { console.warn(`Verification role sync failed: ${error.message}`); }
   };
-  setTimeout(verifyRoles, 5000);
-  setInterval(verifyRoles, 30_000);
+  setTimeout(verifyRoles, 3000);
+  setInterval(verifyRoles, 3000);
 
   // Sales, sign-ups and website actions, posted to the log channels.
   const feed = () => postFeed(ready).catch((e) => console.warn(`Log feed failed: ${e?.message ?? e}`));
