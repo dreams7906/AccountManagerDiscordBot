@@ -1,4 +1,5 @@
 import { db } from "./db.js";
+import { renderEmail } from "./email-template.js";
 
 export function startRobuxInvoices() {
   const account = process.env.CLOUDFLARE_ACCOUNT_ID?.trim();
@@ -11,7 +12,7 @@ export function startRobuxInvoices() {
     const sentColumn = paid ? "invoice_sent_at" : "pending_invoice_sent_at";
     const retryColumn = paid ? "invoice_retry_at" : "pending_invoice_retry_at";
     try {
-      const due = orders.select("invoice_number,invoice_email,invoice_price,plan_id,expires_at")
+      const due = orders.select("invoice_number,invoice_email,invoice_price,plan_id,expires_at,order_token")
         .not("invoice_email", "is", null).is("cancelled_at", null)
         .is(sentColumn, null).lte(retryColumn, now).order(retryColumn).limit(10);
       const { data, error } = await (paid ? due.not("sale_id", "is", null) : due.is("sale_id", null).gt("expires_at", now));
@@ -26,12 +27,34 @@ export function startRobuxInvoices() {
         if (!reserved) continue;
 
         const plan = { week: "Weekly", month: "Monthly", lifetime: "Lifetime" }[invoice.plan_id] ?? invoice.plan_id;
-        const label = paid ? "Payment confirmed" : "Awaiting payment";
-        const deadline = paid ? "" : new Intl.DateTimeFormat("en-US", {
-          dateStyle: "medium", timeStyle: "short", timeZone: "America/Los_Angeles",
-        }).format(new Date(invoice.expires_at)) + " Pacific time";
+        const fmt = (d) => new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Los_Angeles" }).format(d) + " PT";
         const invoiceUrl = `https://shiftam.xyz/thanks?invoice=${encodeURIComponent(invoice.invoice_number)}`;
-        const escapedPlan = String(plan).replace(/[&<>]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]);
+        // The key is made in the same step that records the sale, so a paid receipt can carry it.
+        let licenseKey;
+        if (paid) {
+          const { data: keyRow } = await db().from("license_keys").select("key").eq("order_token", invoice.order_token).maybeSingle();
+          licenseKey = keyRow?.key ?? undefined;
+        }
+        const email = renderEmail(paid ? {
+          preheader: licenseKey ? `Your ShiftAM ${plan} key is inside.` : `Your ShiftAM ${plan} payment went through.`,
+          status: { label: "Payment received", tone: "ok" },
+          title: "Thanks for your purchase!",
+          intro: `We got your Robux payment for ShiftAM ${plan}.${licenseKey ? " Your key is below." : " Your key is on your order page."}`,
+          rows: [["Plan", `ShiftAM ${plan}`], ["Payment method", "Robux (game pass)"], ["Invoice", invoice.invoice_number], ["Paid", fmt(new Date())]],
+          total: ["Total paid", `${invoice.invoice_price} Robux`],
+          licenseKey,
+          button: licenseKey ? { label: "Create your account", href: `https://shiftam.xyz/register?key=${encodeURIComponent(licenseKey)}` } : { label: "Open your order", href: invoiceUrl },
+          note: "Already have an account? Sign in and redeem the key on your dashboard. Keep this email: it is your receipt.",
+        } : {
+          preheader: `Pay ${invoice.invoice_price} Robux before ${fmt(new Date(invoice.expires_at))} to get your key.`,
+          status: { label: "Awaiting payment", tone: "pending" },
+          title: "Your ShiftAM invoice",
+          intro: `Buy the game pass on Roblox from the account you chose at checkout. Your key appears as soon as the payment goes through.`,
+          rows: [["Plan", `ShiftAM ${plan}`], ["Payment method", "Robux (game pass)"], ["Invoice", invoice.invoice_number], ["Pay before", fmt(new Date(invoice.expires_at))]],
+          total: ["Amount due", `${invoice.invoice_price} Robux`],
+          button: { label: "Open your invoice", href: invoiceUrl },
+          note: "Open the invoice in the browser you checked out with. Unpaid invoices expire at the time above.",
+        });
         try {
           const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(account)}/email/sending/send`, {
             method: "POST",
@@ -39,35 +62,10 @@ export function startRobuxInvoices() {
             signal: AbortSignal.timeout(8000),
             body: JSON.stringify({
               to: invoice.invoice_email,
-              from: "utilities@shiftam.xyz",
-              subject: `ShiftAM ${paid ? "payment receipt" : "unpaid invoice"} · ${plan}`,
-              text: [
-                `ShiftAM invoice ${invoice.invoice_number}`,
-                `Plan: ${plan}`,
-                `Listed price: ${invoice.invoice_price} Robux`,
-                label,
-                ...(!paid ? [
-                  `Pay before: ${deadline}`,
-                ] : []),
-                "",
-                `Open your saved invoice in the browser you used to check out: ${invoiceUrl}`,
-                "Sign in to your dashboard: https://shiftam.xyz/account",
-                "Join our Discord community for purchase support: https://discord.gg/uMyVQHXRFv",
-              ].join("\n"),
-              html: `<div style="max-width:560px;margin:0 auto;font:16px Arial,sans-serif;color:#17152c">
-                <div style="padding:24px;background:#241748;color:#fff;border-radius:14px 14px 0 0">
-                  <strong>ShiftAM</strong><h1 style="margin:8px 0 0;font-size:25px">${paid ? "Payment receipt" : "Your invoice"}</h1>
-                </div>
-                <div style="padding:24px;border:1px solid #e4def0;border-radius:0 0 14px 14px">
-                  <p style="margin-top:0;color:#6443a8"><strong>${label}</strong></p>
-                  <p><strong>${escapedPlan}</strong> · ${invoice.invoice_price} Robux (listed price)</p>
-                  <p style="font-size:13px;overflow-wrap:anywhere">Invoice ${invoice.invoice_number}</p>
-                  ${deadline ? `<p>Pay before <strong>${deadline}</strong>.</p>` : ""}
-                  <p><a href="${invoiceUrl}" style="display:inline-block;padding:12px 18px;background:#5b36ac;color:#fff;text-decoration:none;border-radius:8px">Open saved invoice</a></p>
-                  <p style="font-size:14px">Use the browser you checked out with to open this invoice.</p>
-                  <p style="font-size:14px"><a href="https://shiftam.xyz/account">Dashboard</a> · <a href="https://discord.gg/uMyVQHXRFv">Discord support</a></p>
-                </div>
-              </div>`,
+              from: { address: "utilities@shiftam.xyz", name: "ShiftAM" },
+              subject: paid ? `Your ShiftAM ${plan} receipt${licenseKey ? " and key" : ""}` : `Your ShiftAM invoice · ${invoice.invoice_price} Robux`,
+              text: email.text,
+              html: email.html,
             }),
           });
           const result = await response.json().catch(() => null);
